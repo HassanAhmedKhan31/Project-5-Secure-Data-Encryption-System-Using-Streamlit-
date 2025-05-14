@@ -61,13 +61,19 @@ def encrypt_data(text, username):
 def decrypt_data(encrypted_text, passkey, username):
     if users[username]["password"] != hash_password(passkey):
         st.session_state.failed_attempts += 1
+        st.error("❌ Incorrect password!")
         return None
     try:
         key = users[username]["key"].encode()
         cipher = Fernet(key)
         return cipher.decrypt(encrypted_text.encode()).decode()
-    except (InvalidToken, Exception):
+    except InvalidToken as e:
         st.session_state.failed_attempts += 1
+        st.error(f"❌ Decryption failed: {e}")
+        return None
+    except Exception as e:
+        st.session_state.failed_attempts += 1
+        st.error(f"❌ Decryption error: {e}")
         return None
 
 # --- Login Page ---
